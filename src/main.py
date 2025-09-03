@@ -1,13 +1,8 @@
 import json
-from __future__ import annotations
-
-import json
 import logging
-from pathlib import Path
-from typing import Any
 
-from src.utils import read_transactions_excel
-from src.views import events_page, main_page
+from src.utils import load_operations
+from src.views import main_page, events_page
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,10 +13,11 @@ logging.basicConfig(
     ],
 )
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+df = load_operations()
 
 
-def load_user_settings() -> dict[str, Any]:
+def load_user_settings() -> dict:
     """
     Загружает пользовательские настройки (валюты и акции).
     """
@@ -49,8 +45,8 @@ def run() -> None:
         events_json = events_page("2020-05-20", df, settings, period="M")
         print(json.dumps(events_json, indent=4, ensure_ascii=False))
 
-    except Exception:
-        logging.exception("Ошибка при запуске")
+    except Exception as e:
+        logging.error("Ошибка при запуске: %s", e, exc_info=True)
 
 
 if __name__ == "__main__":

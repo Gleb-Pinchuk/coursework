@@ -1,51 +1,29 @@
-from __future__ import annotations
-
-import logging
-from datetime import datetime
-from typing import Any
-
 import pandas as pd
+import logging
 
-from src.utils import (
-    get_greeting,
-    get_cards_info,
-    get_top_transactions,
-    get_currency_rates,
-    get_stock_prices,
-    get_events,
-)
+logging.basicConfig(level=logging.INFO)
 
 
-def main_page(datetime_str: str, df: pd.DataFrame, settings: dict[str, Any]) -> dict[str, Any]:
-    """
-    Страница «Главная».
-    Принимает строку с датой и временем формата YYYY-MM-DD HH:MM:SS.
-    Возвращает JSON с приветствием, картами, транзакциями, курсами валют и акциями.
-    """
-    try:
-        current_time = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
-
-        return {
-            "greeting": get_greeting(current_time),
-            "cards": get_cards_info(df),
-            "top_transactions": get_top_transactions(df),
-            "currency_rates": get_currency_rates(settings.get("currencies", [])),
-            "stock_prices": get_stock_prices(settings.get("stocks", [])),
-        }
-    except Exception:
-        logging.exception("Ошибка при формировании страницы 'Главная'")
-        return {}
+def main_page(date: str, df: pd.DataFrame, settings: dict) -> dict:
+    date = pd.to_datetime(date)
+    summary = {"total": float(df["Сумма операции"].sum())}
+    return {
+        "page": "main",
+        "date": date.isoformat(),
+        "transactions_count": len(df),
+        "summary": summary,
+        "user_settings": settings,
+    }
 
 
-def events_page(date_str: str, df: pd.DataFrame, settings: dict[str, Any], period: str = "M") -> dict[str, Any]:
-    """
-    Страница «События».
-    Принимает строку с датой (YYYY-MM-DD), DataFrame и настройки.
-    Возвращает JSON с событиями за указанный период.
-    """
-    try:
-        start_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-        return get_events(df, start_date, period)
-    except Exception:
-        logging.exception("Ошибка при формировании страницы 'События'")
-        return {}
+def events_page(date: str, df: pd.DataFrame, settings: dict, period: str = "M") -> dict:
+    summary = df.groupby(pd.Grouper(key="Дата операции", freq=period))[
+        "Сумма операции"
+    ].sum()
+    return {
+        "page": "events",
+        "date": pd.to_datetime(date).isoformat(),
+        "settings": settings,
+        "events": True,
+        "summary": summary.to_dict(),
+    }
