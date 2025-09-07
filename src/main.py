@@ -1,23 +1,26 @@
 import json
 import logging
-
+from pathlib import Path
+from typing import Any
 from src.utils import load_operations
-from src.views import main_page, events_page
+from src.views import events_page, main_page
+import os
+
+os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.FileHandler("logs/app.log"),
-        logging.StreamHandler(),
-    ],
+        logging.StreamHandler()
+    ]
 )
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-df = load_operations()
 
-
-def load_user_settings() -> dict:
+def load_user_settings() -> dict[str, Any]:
     """
     Загружает пользовательские настройки (валюты и акции).
     """
@@ -32,17 +35,21 @@ def run() -> None:
     """
     try:
         logging.info("Загрузка транзакций...")
-        df = read_transactions_excel(BASE_DIR / "data" / "operations.xlsx")
+        df = load_operations(BASE_DIR / "data" / "operations.xlsx")
 
         logging.info("Загрузка настроек пользователя...")
-        settings = load_user_settings()
+        settings: dict[str, Any] = load_user_settings()
 
         logging.info("Формирование главной страницы...")
-        homepage_json = main_page("2020-05-20 15:45:00", df, settings)
+        homepage_json: dict[str, Any] = main_page(
+            "2020-05-20 15:45:00", df, settings
+        )
         print(json.dumps(homepage_json, indent=4, ensure_ascii=False))
 
         logging.info("Формирование страницы событий...")
-        events_json = events_page("2020-05-20", df, settings, period="M")
+        events_json: dict[str, Any] = events_page(
+            "2020-05-20", df, settings, period="M"
+        )
         print(json.dumps(events_json, indent=4, ensure_ascii=False))
 
     except Exception as e:
