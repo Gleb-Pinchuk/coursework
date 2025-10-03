@@ -1,0 +1,7 @@
+{
+    "report": "spending_by_category",
+    "data": {
+        "category": "Еда",
+        "total": 300.0
+    }
+}

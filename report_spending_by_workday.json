@@ -1,0 +1,7 @@
+{
+    "report": "spending_by_workday",
+    "data": {
+        "workday": 75.0,
+        "weekend": 30.0
+    }
+}

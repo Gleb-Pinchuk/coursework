@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "coursework"
+version = "0.1.0"
+description = "Проект для работы с финансовыми транзакциями"
+authors = ["Gleb Pinchuk <your_email@example.com>"]
+readme = "README.md"
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.0"
+openpyxl = "^3.1.2"
+python-dotenv = "^1.0.0"
+requests = "^2.32.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^6.0.0"
+flake8 = "^7.0.0"
+mypy = "^1.10.0"
+isort = "^5.12.0"
+black = "^24.0.0"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
