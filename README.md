@@ -7,28 +7,25 @@
 - Загрузка транзакций из Excel-файла (`operations.xlsx`).  
 - Формирование веб-страниц «Главная» и «События».  
 - Реализация сервисов (поиск, кешбэк, инвесткопилка).  
-- Генерация отчётов по тратам. 
+- Генерация отчётов по тратам.  
 
-## Установка:
+## Установка
 
 1. Клонируйте репозиторий:
 
-   ```bash
-   git clone https://github.com/Gleb-Pinchuk/coursework.git
-```
+```bash
+git clone https://github.com/Gleb-Pinchuk/coursework.git
+cd coursework
 
-2. Установите зависимости через poetry:
+pip install poetry
 
-pip install -r requirements.txt
+poetry install
+poetry shell
 
-## Тестирование 
-```
-1. pytest
-```
+## Тестирование
+
+poetry run pytest
+
 2. с отчетом покрытия кода:
-```
 pytest --cov=src
-```
-
-## Лицензия:
-этот проект создан для учебных целей
+## Лицензия: этот проект создан для учебных целей
