@@ -1,5 +1,8 @@
 {
+    "report": "spending_by_weekday",
     "data": {
-        "Wednesday": 150.0
+        "Monday": 100.0,
+        "Saturday": 30.0,
+        "Tuesday": 50.0
     }
 }

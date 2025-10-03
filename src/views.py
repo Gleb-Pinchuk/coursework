@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 def main_page(timestamp: str,
               df: pd.DataFrame,
-              settings: Dict[str, Any],
               financial_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Формирует данные для отображения на главной странице.
