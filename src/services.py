@@ -25,20 +25,28 @@ def get_currency_rates(currencies: List[str]) -> Dict[str, Any]:
             "base_currency": "RUB",
             "currencies": ",".join(currencies)
         }
+
         response = requests.get(base_url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
 
         if data.get("success"):
-            rates = {cur: data["data"][cur]["value"] for cur in currencies if cur in data.get("data", {})}
+            rates = {
+                cur: data["data"][cur]["value"]
+                for cur in currencies
+                if cur in data.get("data", {})
+            }
             return {"success": True, "data": rates}
         else:
             error_msg = data.get("error", {}).get("message", "Unknown API error")
             return {"success": False, "error": error_msg}
 
     except requests.exceptions.RequestException as e:
+        logger.error("Network error in currency API: %s", e)
         return {"success": False, "error": f"Network error: {e}"}
+
     except ValueError as e:
+        logger.error("JSON parse error in currency API: %s", e)
         return {"success": False, "error": f"JSON parse error: {e}"}
 
 
@@ -53,7 +61,7 @@ def get_stock_prices(stocks: List[str]) -> Dict[str, Any]:
     if not stocks:
         return {"success": False, "error": "No stocks specified"}
 
-    results = {"success": True, "data": {}}
+    result = {"success": True, "data": {}}
 
     for stock in stocks:
         try:
@@ -62,25 +70,31 @@ def get_stock_prices(stocks: List[str]) -> Dict[str, Any]:
                 "symbol": stock,
                 "apikey": api_key
             }
+
             response = requests.get(base_url, params=params, timeout=10)
             response.raise_for_status()
             data = response.json()
+
             quote = data.get("Global Quote", {})
             price = quote.get("05. price")
+
             if price is not None:
-                results["data"][stock] = float(price)
+                result["data"][stock] = float(price)
             else:
-                results["success"] = False
-                results["error"] = f"No price for {stock}"
+                result["success"] = False
+                result["error"] = f"No price for {stock}"
 
         except requests.exceptions.RequestException as e:
-            results["success"] = False
-            results["error"] = f"Network error for {stock}: {e}"
-        except ValueError as e:
-            results["success"] = False
-            results["error"] = f"JSON parse error for {stock}: {e}"
+            logger.error("Network error for stock %s: %s", stock, e)
+            result["success"] = False
+            result["error"] = f"Network error for {stock}: {e}"
 
-    return results
+        except ValueError as e:
+            logger.error("JSON parse error for stock %s: %s", stock, e)
+            result["success"] = False
+            result["error"] = f"JSON parse error for {stock}: {e}"
+
+    return result
 
 
 def get_financial_data(settings: Dict[str, Any]) -> Dict[str, Any]:
