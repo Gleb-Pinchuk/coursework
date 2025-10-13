@@ -56,8 +56,6 @@ def events_page(date: str,
             }
 
         stats = get_transaction_stats(filtered_df) or {}
-
-        # Гарантируем наличие всех ожидаемых ключей
         stats.setdefault("total_income", 0.0)
         stats.setdefault("total_expenses", 0.0)
         stats.setdefault("transaction_count", len(filtered_df))
@@ -66,7 +64,7 @@ def events_page(date: str,
 
         total_income = stats["total_income"]
         total_expenses = stats["total_expenses"]
-        net_balance = total_income + total_expenses  # расходы отрицательные
+        net_balance = total_income + total_expenses
 
         income_vs_expenses = {
             "type": "income_vs_expenses",
