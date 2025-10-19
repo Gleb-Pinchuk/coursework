@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, List
 import pandas as pd
+from src.services import get_financial_data
 
 logger = logging.getLogger(__name__)
 
@@ -55,16 +56,11 @@ def events_page(date: str,
                 "reports": []
             }
 
-        stats = get_transaction_stats(filtered_df) or {}
-        stats.setdefault("total_income", 0.0)
-        stats.setdefault("total_expenses", 0.0)
-        stats.setdefault("transaction_count", len(filtered_df))
-        stats.setdefault("average_transaction", 0.0)
-        stats.setdefault("categories", {})
+        stats = get_transaction_stats(filtered_df)
 
         total_income = stats["total_income"]
         total_expenses = stats["total_expenses"]
-        net_balance = total_income + total_expenses
+        net_balance = total_income + total_expenses  # расходы отрицательные
 
         income_vs_expenses = {
             "type": "income_vs_expenses",
@@ -100,6 +96,41 @@ def events_page(date: str,
     except Exception as e:
         logger.error("Ошибка при формировании страницы событий: %s", e)
         return {"error": f"Failed to generate events page: {str(e)}"}
+
+
+def services_page(settings: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Формирует данные для страницы 'Сервисы' — курсы валют и цены акций.
+    """
+    try:
+        logger.info("Формирование страницы сервисов...")
+
+        result = get_financial_data(settings)
+
+        if not result or (
+            not result.get("currencies") and not result.get("stocks")
+        ):
+            logger.warning("Не удалось получить данные для сервисов.")
+            return {
+                "status": "error",
+                "message": "No financial data available",
+                "currencies": {},
+                "stocks": {}
+            }
+
+        response = {
+            "status": "ok",
+            "currencies": result.get("currencies", {}),
+            "stocks": result.get("stocks", {}),
+            "settings": settings
+        }
+
+        logger.info("Страница сервисов успешно сформирована.")
+        return response
+
+    except Exception as e:
+        logger.error("Ошибка при формировании страницы сервисов: %s", e)
+        return {"error": f"Failed to generate services page: {str(e)}"}
 
 
 def calculate_current_balance(df: pd.DataFrame, timestamp: str) -> float:
